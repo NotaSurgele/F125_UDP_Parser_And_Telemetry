@@ -28,7 +28,7 @@ typedef uint64_t uint64;
     x =/ 32767.0
 
 static const uint32     cs_maxNumCarsInUDPData = 22;
-static const uint32     cs_maxParticipantNameLen = 48;
+static const uint32     cs_maxParticipantNameLen = 32;
 static const uint32     cs_maxTyreStints = 8;
 static const uint32     cs_maxNumTyreSets = 13 + 7; // 13 slick and 7 wet weather
 
@@ -56,6 +56,7 @@ enum PacketId
     ePacketIdMax
 };
 
+#pragma pack(push, 1)
 struct PacketHeader
 {
     uint16      m_packetFormat;             // 2025
@@ -71,7 +72,7 @@ struct PacketHeader
     uint8       m_secondaryPlayerCarIndex;  // Index of secondary player's car in the array (splitscreen) - 255 if no second player
     uint8       m_playerCarIndex;           // Index of player's car in the array
 };
-
+#pragma pack(pop)
 
 //-----------------------------------------------------------------------------
 // Motion - 1349 bytes
@@ -80,6 +81,7 @@ struct PacketHeader
 //-----------------------------------------------------------------------------
 // Motion data for one car
 //-----------------------------------------------------------------------------
+#pragma pack(push, 1)
 struct CarMotionData
 {
     float       m_worldPositionX;           // World space X position - metres
@@ -101,6 +103,8 @@ struct CarMotionData
     float       m_pitch;                    // Pitch angle in radians
     float       m_roll;                     // Roll angle in radians
 };
+#pragma pack(pop)
+
 
 struct PacketMotionData
 {
@@ -135,6 +139,7 @@ struct WeatherForecastSample
     int8        m_airTemperatureChange;     // Air temp. change - 0 = up, 1 = down, 2 = no change
     uint8       m_rainPercentage;           // Rain percentage (0-100)
 };
+
 
 struct PacketSessionData
 {
@@ -228,6 +233,7 @@ struct PacketSessionData
 //-----------------------------------------------------------------------------
 // Lap data about one car
 //-----------------------------------------------------------------------------
+#pragma pack(push, 1)
 struct LapData
 {
     uint32      m_lastLapTimeInMS;              // Last lap time in milliseconds
@@ -264,6 +270,8 @@ struct LapData
     float       m_speedTrapFastestSpeed;        // Fastest speed through speed trap for this car in kmph
     uint8       m_speedTrapFastestLap;          // Lap no the fastest speed was achieved, 255 = not set
 };
+#pragma pack(pop)
+
 
 struct PacketLapData
 {
@@ -431,6 +439,7 @@ struct LiveryColour
 //-----------------------------------------------------------------------------
 // Data about one participant
 //-----------------------------------------------------------------------------
+#pragma pack(push, 1)
 struct ParticipantData
 {
     uint8           m_aiControlled;                     // Whether the vehicle is AI (1) or Human (0) controlled
@@ -444,8 +453,8 @@ struct ParticipantData
                                                         // Will be truncated with ... (U+2026) if too long
     uint8           m_yourTelemetry;                    // The player's UDP setting, 0 = restricted, 1 = public
     uint8           m_showOnlineNames;                  // The player's show online names setting, 0 = off, 1 = on
-    uint8           m_platform;                         // 1 = Steam, 3 = PlayStation, 4 = Xbox, 6 = Origin, 255 = unknown
     uint16          m_techLevel;                        // F1 World tech level
+    uint8           m_platform;                         // 1 = Steam, 3 = PlayStation, 4 = Xbox, 6 = Origin, 255 = unknown
     uint8           m_numColours;                       // Number of colours valid for this car
     LiveryColour    m_liveryColours[4];                 // Colours for the car
 };
@@ -458,7 +467,7 @@ struct PacketParticipantsData
     uint8               m_numActiveCars;            // Number of active cars in the data - should match number of cars on HUD
     ParticipantData     m_participants[cs_maxNumCarsInUDPData];
 };
-
+#pragma pack(pop)
 
 //-----------------------------------------------------------------------------
 // Car Setups - 1133 bytes

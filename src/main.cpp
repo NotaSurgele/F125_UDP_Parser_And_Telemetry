@@ -1,9 +1,9 @@
 #include <iostream>
 #include <array>
-#include <asio.hpp>
 
-#include "receiver.h"
+#include "../include/receiver.h"
 #include "imgui.h"
+#include "f125parser.h"
 
 #include "backends/imgui_impl_win32.h"
 #include "backends/imgui_impl_opengl2.h"
@@ -17,23 +17,6 @@ void parseParticipantData(std::array<unsigned char, 4000>& recv_buff) {
 
         std::cout << ppd->m_participants[1].m_name << std::endl;
 
-        //uint8_t tmp = ppd->m_numActiveCars;
-        //int chk = 1;
-        /*
-        std::vector<char> word;
-        for (int i = 0; i <= 8; i++) {
-            if (tmp & chk == 1) {
-                word.push_back('1');
-            } else {
-                word.push_back('0');
-            }
-            chk = chk << 1;
-        }
-
-        for (char c  : word) {
-            std::cout << c;
-        }
-        */
 
     } catch (std::exception e) {
         throw e.what();
@@ -48,9 +31,7 @@ void parseMotionData(std::array<unsigned char, 4000> & recv_buff ) {
         std::cout << "Packet header " << pmd->m_header.m_packetFormat << std::endl;
 
         std::cout << "player index : \"" << (int) pmd->m_header.m_playerCarIndex << "\"" << std::endl;
-        //auto cmd = pmd->m_carMotionData[pmd->m_header.m_playerCarIndex];
-
-        //std::cout << "Player x position " << cmd.m_worldPositionX;
+        
     } catch (std::exception e) {
         std::cout << e.what() << std::endl;
     }
@@ -70,7 +51,7 @@ int listener(void) {
 
         while (true) {
             // Receive data
-            size_t len = socket.receive_from(asio::buffer(recv_buf), sender_endpoint);
+            socket.receive_from(asio::buffer(recv_buf), sender_endpoint);
 
             auto ph = reinterpret_cast<PacketHeader *>(&recv_buf);
 
@@ -263,6 +244,7 @@ int main(void) {
     asio::io_context context;
 
     Receiver r = Receiver(context, 20777);
+    F125parser f1parser = F125parser();
 
     std::cout << "float: " << sizeof(uint8) << std::endl;
 
@@ -272,13 +254,12 @@ int main(void) {
         auto p = r.poll();
 
         if (p != nullptr) {
-            auto ppd = reinterpret_cast<PacketParticipantsData *>(p->data);
-            if (p->head->m_packetId == 4) {
-                for (int i = 0; i < 4; i++) {
-                    std::cout << "Packet format " << (char *)ppd->m_participants[i].m_name << std::endl;
-                }
+            try {
+                f1parser.parse(p);
+            } catch (std::exception& e) {
+                std::cerr << "Parsing error: " << e.what() << std::endl;
             }
-        }
+        } 
     }
     return 0;
 }

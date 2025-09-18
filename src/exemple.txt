@@ -1,0 +1,52 @@
+
+
+
+
+#define MOTIONVALUE "MotionValue"
+
+
+f125parser {
+
+    getValeu(std::string) {
+        map(string)
+    }
+
+
+    protected:
+        std::map<std::string, wrapper> map;
+
+
+    template <typename T>
+    getData<T>() {
+        for (auto it = data.begin(), it)
+    }
+
+
+}
+
+
+
+
+speedModule {
+
+    update() {
+        MovementPAcket = GetParserInstance().getData<MovementPacket>();
+
+
+        // display speed
+    }
+
+}
+
+
+
+main () {
+    F1Parser *parser = getParserInstance();
+
+
+
+    loop {
+        parser.parse(Packet);
+    }
+
+}

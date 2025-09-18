@@ -8,20 +8,26 @@
 #include <queue>
 #include <iostream>
 #include <exception>
+#include <thread>
+#include <memory>
+#include <array>
 
-#include "asio.hpp"
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0A00 // Windows 10
+#endif
 
+#include <asio.hpp>
 #include "f125.h"
-
-
-
 
 using asio::ip::udp;
 
+class Packet {
 
-struct Packet {
-    PacketHeader *head;
-    void *data;
+    public:
+    Packet() = default;
+    ~Packet() = default;
+    PacketHeader head;
+    std::vector<unsigned char> data;
 };
 
 
@@ -29,35 +35,31 @@ class Receiver {
 public:
     Receiver(asio::io_context &context, unsigned short port);
     ~Receiver();
-    Packet * poll(void);
+    std::shared_ptr<Packet> poll(void);
 
 
     void receive() {
-
 
         while (true) {
 
             try {
 
-                std::array<unsigned char, 1284> buff = {0};
+                std::array<unsigned char, 2048> buff = {0};
                 size_t l = this->sock.receive_from(asio::buffer(buff), endpoint);
 
-                Packet *newPacket = new Packet();
+                auto newPacket = std::make_shared<Packet>();
 
-                if (newPacket != nullptr) {
-                    newPacket->head = new PacketHeader();
-                    std::memcpy(&newPacket->head->m_packetFormat, buff.data(), sizeof(PacketHeader));
+                std::memcpy(&newPacket->head, buff.data(), sizeof(PacketHeader));
 
-                    newPacket->data = malloc(l);
+                newPacket->data.resize(l - sizeof(PacketHeader));
 
-                    std::memcpy(newPacket->data, buff.data(), l);
+                std::memcpy(newPacket->data.data(), buff.data() + sizeof(PacketHeader), l - sizeof(PacketHeader));
 
-                    this->queue.push(newPacket);
-                }
+                this->queue.push(newPacket);
 
-            } catch (std::exception e) {
+            } catch (std::exception &e) {
 
-                std::cerr << e.what() << std::endl;
+                std::cerr << "error : " << e.what() << std::endl;
 
             }
 
@@ -73,9 +75,8 @@ private:
 
     udp::socket sock;
     udp::endpoint endpoint;
-    //std::array<char, 2048> buff;
 
-    std::queue<Packet *> queue;
+    std::queue<std::shared_ptr<Packet>> queue;
 
     std::thread thread_;
 

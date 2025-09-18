@@ -40,14 +40,13 @@ add_executable(${PROJECT_NAME}
         ${imgui_SOURCE_DIR}/backends/imgui_impl_win32.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl2.cpp
 
-        # Your headers (optional)
-        include/receiver.h
         src/receiver.cpp
+        src/f125parser.cpp
 )
 
 # Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
-        include
+        ${PROJECT_SOURCE_DIR}/include
         ${asio_SOURCE_DIR}/asio/include
         ${imgui_SOURCE_DIR}
         ${imgui_SOURCE_DIR}/backends
