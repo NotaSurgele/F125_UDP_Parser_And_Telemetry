@@ -18,7 +18,7 @@ void parseParticipantData(std::array<unsigned char, 4000>& recv_buff) {
         std::cout << ppd->m_participants[1].m_name << std::endl;
 
 
-    } catch (std::exception e) {
+    } catch (std::exception& e) {
         throw e.what();
     }
 }
@@ -32,7 +32,7 @@ void parseMotionData(std::array<unsigned char, 4000> & recv_buff ) {
 
         std::cout << "player index : \"" << (int) pmd->m_header.m_playerCarIndex << "\"" << std::endl;
         
-    } catch (std::exception e) {
+    } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
 }
@@ -256,6 +256,8 @@ int main(void) {
         if (p != nullptr) {
             try {
                 f1parser.parse(p);
+
+                f1parser.participantDataDisplay();
             } catch (std::exception& e) {
                 std::cerr << "Parsing error: " << e.what() << std::endl;
             }
