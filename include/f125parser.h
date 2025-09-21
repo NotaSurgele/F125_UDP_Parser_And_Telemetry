@@ -44,6 +44,11 @@ private:
             ePacketIdMotion, [this](const std::shared_ptr<Packet>& packet) {
                 _registerPacket<PacketMotionData>(packet);
             }
+        },
+        {
+            ePacketIdCarTelemetry, [this](const std::shared_ptr<Packet>& packet) {
+                _registerPacket<PacketCarTelemetryData>(packet);
+            }
         }
     };
 

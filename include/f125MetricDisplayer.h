@@ -13,6 +13,8 @@
 #include "backends/imgui_impl_win32.h"
 #include "backends/imgui_impl_dx11.h"
 
+#define INDENT 20.0F
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 class F125MetricDisplayer {
@@ -119,25 +121,27 @@ private:
                 POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
                 ScreenToClient(hWnd, &pt);
 
-                // Only allow clicks inside ImGui panel
-                if (pt.x >= _panelPos.x && pt.x <= _panelPos.x + _panelSize.x &&
-                    pt.y >= _panelPos.y && pt.y <= _panelPos.y + _panelSize.y)
+                ImGui::GetIO().MousePos = ImVec2((float)pt.x, (float)pt.y);
+
+                // Make overlay clickable only if mouse is over any ImGui window
+                if (ImGui::GetIO().WantCaptureMouse)
                     return HTCLIENT;
 
-                // Everything else is transparent
-                return HTTRANSPARENT;
+                return HTTRANSPARENT; // let clicks pass through otherwise
             }
+
             case WM_SIZE:
-                if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED) {
+                if (g_pd3dDevice != nullptr && wParam != SIZE_MINIMIZED) {
                     CleanupRenderTarget();
                     g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam),
-                        DXGI_FORMAT_UNKNOWN, 0);
+                                                DXGI_FORMAT_UNKNOWN, 0);
                     CreateRenderTarget();
                 }
-                return 0;
+            return 0;
+
             case WM_DESTROY:
                 PostQuitMessage(0);
-                return 0;
+            return 0;
         }
         return DefWindowProc(hWnd, msg, wParam, lParam);
     }
@@ -181,8 +185,10 @@ private:
         if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = NULL; }
     }
 private:
-    void RenderDriversSelectables() const;
+    void RenderDriversGUI() const;
     void RenderCarVelocity(int &index) const;
+    void RenderPedalsPressure(int &index) const;
+    void RenderPedalPressure(const float& amount,  ImU32 col) const;
 };
 
 /*// Entry point
