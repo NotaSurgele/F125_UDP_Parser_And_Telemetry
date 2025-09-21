@@ -4,6 +4,20 @@
 
 #include "f125MetricDisplayer.h"
 
+void F125MetricDisplayer::RenderCarVelocity(int& index) const {
+    auto packetMotionData = _parser.getPacket<PacketMotionData>();
+
+    if (!packetMotionData) return;
+
+    auto carsMotionData = reinterpret_cast<CarMotionData *>(packetMotionData->data.data());
+    auto playerCarMotionData = carsMotionData[index];
+
+    ImGui::Text("Velocity x %f", playerCarMotionData.m_worldVelocityX);
+    ImGui::Text("Velocity y %f", playerCarMotionData.m_worldVelocityY);
+    ImGui::Text("Velocity z %f", playerCarMotionData.m_worldVelocityZ);
+}
+
+
 void F125MetricDisplayer::RenderDriversSelectables() const {
     std::shared_ptr<Packet> ppd = _parser.getPacket<PacketParticipantsData>();
 
@@ -16,21 +30,17 @@ void F125MetricDisplayer::RenderDriversSelectables() const {
         ImGui::Text("Num drivers: %d", activeCars);
         ImGui::Text("Player array position: %d", playerPos);
 
-
         for (int i = 0; i < activeCars; i++) {
             std::string driverLabel = "Driver:  " + std::string(pd[i].m_name);
-
             auto treeNodeFlag = i == playerPos ? ImGuiTreeNodeFlags_DefaultOpen : 0;
+
             if (ImGui::TreeNodeEx(driverLabel.c_str(), treeNodeFlag)) {
-                ImGui::Indent(20.0f);
-                ImGui::Text( "Coucou");
-                ImGui::Unindent(20.0f);
+                RenderCarVelocity(i);
                 ImGui::TreePop();
             }
         }
-
     } else {
-        ImGui::Text("Waiting for packet...");
+        ImGui::Text("Waiting for packets...");
     }
 }
 

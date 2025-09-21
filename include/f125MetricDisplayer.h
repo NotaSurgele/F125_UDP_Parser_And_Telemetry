@@ -182,6 +182,7 @@ private:
     }
 private:
     void RenderDriversSelectables() const;
+    void RenderCarVelocity(int &index) const;
 };
 
 /*// Entry point
