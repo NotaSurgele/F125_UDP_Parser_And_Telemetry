@@ -36,7 +36,7 @@ private:
     // Define every function packet parsing for each enum
     std::map<PacketId, std::function<void(const std::shared_ptr<Packet>&)>> _parseMap = {
         { ePacketIdParticipants, [this](const std::shared_ptr<Packet>& packet) {
-            _registerPacket<ParticipantData>(packet);
+            _registerPacket<PacketParticipantsData>(packet);
         }}
     };
 

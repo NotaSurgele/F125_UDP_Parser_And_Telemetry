@@ -4,6 +4,37 @@
 
 #include "f125MetricDisplayer.h"
 
+void F125MetricDisplayer::RenderDriversSelectables() const {
+    std::shared_ptr<Packet> ppd = _parser.getPacket<PacketParticipantsData>();
+
+    if (ppd) {
+        auto playerPos = ppd->head.m_playerCarIndex;
+        auto buffer = ppd->data;
+        int activeCars = *ppd->data.data();
+        auto pd = reinterpret_cast<ParticipantData *>(buffer.data() + sizeof(uint8)); // after m_numActiveCars
+
+        ImGui::Text("Num drivers: %d", activeCars);
+        ImGui::Text("Player array position: %d", playerPos);
+
+
+        for (int i = 0; i < activeCars; i++) {
+            std::string driverLabel = "Driver:  " + std::string(pd[i].m_name);
+
+            auto treeNodeFlag = i == playerPos ? ImGuiTreeNodeFlags_DefaultOpen : 0;
+            if (ImGui::TreeNodeEx(driverLabel.c_str(), treeNodeFlag)) {
+                ImGui::Indent(20.0f);
+                ImGui::Text( "Coucou");
+                ImGui::Unindent(20.0f);
+                ImGui::TreePop();
+            }
+        }
+
+    } else {
+        ImGui::Text("Waiting for packet...");
+    }
+}
+
+
 void F125MetricDisplayer::RenderFrame() {
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -14,20 +45,7 @@ void F125MetricDisplayer::RenderFrame() {
     _panelPos = ImGui::GetWindowPos();
     _panelSize = ImGui::GetWindowSize();
 
-    std::shared_ptr<Packet> pd = _parser.getPacket<ParticipantData>();
-
-    if (pd) {
-        auto buffer = pd->data;
-        int activeCars = *pd->data.data();
-        auto ppd = reinterpret_cast<ParticipantData *>(buffer.data() + sizeof(uint8)); // after m_numActiveCars
-        ImGui::Text("Num drivers: %d", activeCars);
-
-        for (int i = 0; i < activeCars; i++) {
-            ImGui::Text("Driver name %s ",  ppd[i].m_name);
-        }
-    } else {
-        ImGui::Text("Waiting for packet...");
-    }
+    RenderDriversSelectables();
 
     ImGui::End();
 

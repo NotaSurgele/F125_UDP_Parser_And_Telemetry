@@ -70,8 +70,8 @@ struct PacketHeader
     float       m_sessionTime;              // Session timestamp
     uint32      m_frameIdentifier;          // Identifier for the frame the data was retrieved on
     uint32      m_overallFrameIdentifier;   // Overall identifier for the frame the data was retrieved on, doesn't go back after flashbacks
-    uint8       m_secondaryPlayerCarIndex;  // Index of secondary player's car in the array (splitscreen) - 255 if no second player
     uint8       m_playerCarIndex;           // Index of player's car in the array
+    uint8       m_secondaryPlayerCarIndex;  // Index of secondary player's car in the array (splitscreen) - 255 if no second player
 };
 #pragma pack(pop)
 
