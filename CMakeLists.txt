@@ -38,10 +38,12 @@ add_executable(${PROJECT_NAME}
 
         # ImGui backends
         ${imgui_SOURCE_DIR}/backends/imgui_impl_win32.cpp
-        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl2.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_dx11.cpp
 
         src/receiver.cpp
         src/f125parser.cpp
+        src/f125MetricDisplayer.cpp
+        include/f125MetricDisplayer.h
 )
 
 # Include directories
@@ -54,7 +56,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 # Link system libraries
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32 opengl32 dwmapi)
+    target_link_libraries(${PROJECT_NAME} PRIVATE d3d11 dxgi ws2_32 user32 gdi32 dwmapi d3dcompiler_47)
 endif()
 
 # Optional: add compiler warnings

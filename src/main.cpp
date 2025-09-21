@@ -1,12 +1,10 @@
 #include <iostream>
 #include <array>
 
+#include "f125MetricDisplayer.h"
 #include "../include/receiver.h"
 #include "imgui.h"
 #include "f125parser.h"
-
-#include "backends/imgui_impl_win32.h"
-#include "backends/imgui_impl_opengl2.h"
 
 using asio::ip::udp;
 
@@ -44,7 +42,7 @@ int listener(void) {
         // Create a UDP socket and bind it to any port (or a specific port)
         udp::socket socket(io_context, udp::endpoint(udp::v4(), 20777));
 
-        std::array<unsigned char, 4000> recv_buf;
+        std::array<unsigned char, 4000> recv_buf = {0};
         udp::endpoint sender_endpoint;
 
         std::cout << "Listening for UDP messages on port 12345...\n";
@@ -240,28 +238,37 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }*/
 
-int main(void) {
+int main() {
     asio::io_context context;
+    Receiver r(context, 20777);
+    F125parser f1parser;
 
-    Receiver r = Receiver(context, 20777);
-    F125parser f1parser = F125parser();
+    HINSTANCE hInstance = GetModuleHandle(NULL);
 
-    std::cout << "float: " << sizeof(uint8) << std::endl;
+    // Start networking thread
+    std::thread netThread([&]() {
+        r.start();
+        std::cout << "Start listening on 20777" << std::endl;
 
-    r.start();
-    std::cout << "Start listening on 20777" << std::endl;
-    while (true) {
-        auto p = r.poll();
+        while (true) {
+            auto p = r.poll();
+            if (p != nullptr) {
+                try {
+                    //std::lock_guard lock(f1parser.packetMutex);
 
-        if (p != nullptr) {
-            try {
-                f1parser.parse(p);
-
-                f1parser.participantDataDisplay();
-            } catch (std::exception& e) {
-                std::cerr << "Parsing error: " << e.what() << std::endl;
+                    f1parser.parse(p);
+                    f1parser.participantDataDisplay();
+                } catch (std::exception& e) {
+                    std::cerr << "Parsing error: " << e.what() << std::endl;
+                }
             }
-        } 
-    }
+        }
+    });
+
+    // Run overlay (blocks until window closes)
+    F125MetricDisplayer overlay(f1parser);
+    overlay.Run(hInstance);
+
+    netThread.join();
     return 0;
 }

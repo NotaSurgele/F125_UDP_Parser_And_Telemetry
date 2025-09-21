@@ -14,34 +14,32 @@ class F125parserError : public std::exception {
 
 class F125parser {
 public:
+    //std::mutex packetMutex;
+
     F125parser() = default;
     ~F125parser() = default;
 
     template<typename T>
     std::shared_ptr<Packet>& getPacket() {
-        auto& packet = _packetMap[SIGNATURE(T)];
-
-        return packet;
+        return _packetMap[SIGNATURE(T)];
     }
+
 
     void parse(std::shared_ptr<Packet>& packet);
 
-
+    // je met sa la pour tester si sa fonctionne mais on peux faire une class f125metricDisplayer ou on peux mettre sa dedans et affiché les data dans une window
     void participantDataDisplay();
     
 private:
-    std::map<std::string, std::shared_ptr<Packet>> _packetMap;
+    mutable std::map<std::string, std::shared_ptr<Packet>> _packetMap;
 
-
-    // Define every packet for each enum
+    // Define every function packet parsing for each enum
     std::map<PacketId, std::function<void(const std::shared_ptr<Packet>&)>> _parseMap = {
         { ePacketIdParticipants, [this](const std::shared_ptr<Packet>& packet) {
             _registerPacket<ParticipantData>(packet);
         }}
     };
 
-    //void _parseParticipantData(const std::shared_ptr<Packet>& packet);
-    
     template<typename T>
     void _registerPacket(const std::shared_ptr<Packet>& packet) {
         _packetMap[SIGNATURE(T)] = packet;
