@@ -34,18 +34,22 @@ class Packet {
 class Receiver {
 public:
     Receiver(asio::io_context &context, unsigned short port);
+    Receiver(asio::io_context &context, const std::string &ip, unsigned short port);
     ~Receiver();
     std::shared_ptr<Packet> poll(void);
 
 
     void receive() {
-
+        
+        std::cout << "Start listening on " << this->port << std::endl;
         while (true) {
 
             try {
 
                 std::array<unsigned char, 2048> buff = {0};
-                size_t l = this->sock.receive_from(asio::buffer(buff), endpoint);
+                //size_t l = this->sock.receive_from(asio::buffer(buff), endpoint);
+                size_t l = this->sock.receive(asio::buffer(buff));
+                std::cout << "Received packet of size: " << l << " bytes" << std::endl;
 
                 auto newPacket = std::make_shared<Packet>();
 
@@ -79,6 +83,9 @@ private:
     std::queue<std::shared_ptr<Packet>> queue;
 
     std::thread thread_;
+
+    unsigned short port;
+
 
 };
 
