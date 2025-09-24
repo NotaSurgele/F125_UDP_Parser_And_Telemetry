@@ -64,6 +64,7 @@ void F125MetricDisplayer::RenderPedalsPressure(int &index) const {
     ImGui::Text("Throttle %f", playerCarTelemetryData.m_throttle);
     ImGui::Text("Brake %f", playerCarTelemetryData.m_brake);
     ImGui::Text("Gear %d", playerCarTelemetryData.m_gear);
+    ImGui::Text("SPEED %d", playerCarTelemetryData.m_speed);
 
     std::cout << index << std::endl;
     // Throttle
