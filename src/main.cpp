@@ -238,20 +238,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }*/
 
-int main() {
+int main(int argc, char** argv) {
     asio::io_context context;
-    Receiver r(context, 20777);
+
+
+    std::unique_ptr<Receiver> r;
+    unsigned short port = 20777;
+    if (argc > 1) {
+        port = static_cast<unsigned short>(std::stoi(argv[1]));
+
+        r = std::make_unique<Receiver>(context, port);
+    } else {
+        r = std::make_unique<Receiver>(context, port);
+    }
+    
     F125parser f1parser;
 
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
     // Start networking thread
     std::thread netThread([&]() {
-        r.start();
-        std::cout << "Start listening on 20777" << std::endl;
+        r->start();
 
         while (true) {
-            auto p = r.poll();
+            auto p = r->poll();
             if (p != nullptr) {
                 try {
                     //std::lock_guard lock(f1parser.packetMutex);

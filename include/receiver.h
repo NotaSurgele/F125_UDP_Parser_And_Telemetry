@@ -39,13 +39,15 @@ public:
 
 
     void receive() {
-
+        
+        std::cout << "Start listening on " << this->port << std::endl;
         while (true) {
 
             try {
 
                 std::array<unsigned char, 2048> buff = {0};
-                size_t l = this->sock.receive_from(asio::buffer(buff), endpoint);
+                //size_t l = this->sock.receive_from(asio::buffer(buff), endpoint);
+                size_t l = this->sock.receive(asio::buffer(buff));
 
                 auto newPacket = std::make_shared<Packet>();
 
@@ -62,8 +64,12 @@ public:
                 std::cerr << "error : " << e.what() << std::endl;
 
             }
+            if (this->stopped)
+                break;
 
         }
+        std::cout << "Stopping receiver on port " << this->port << std::endl;
+        return;
 
     };
 
@@ -73,12 +79,17 @@ private:
 
 
 
+    bool stopped = false;
+
     udp::socket sock;
     udp::endpoint endpoint;
 
     std::queue<std::shared_ptr<Packet>> queue;
 
     std::thread thread_;
+
+    unsigned short port;
+
 
 };
 
