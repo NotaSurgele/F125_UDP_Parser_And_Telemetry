@@ -9,21 +9,6 @@
   : sock(context, udp::endpoint(udp::v4(), prt)), queue(), port(prt) {
   }
 
-  Receiver::Receiver(asio::io_context &context, const std::string &ip, unsigned short prt): sock(context), queue(), port(prt) {
-
-    asio::ip::address address = asio::ip::make_address(ip);
-    sock = udp::socket(context);
-    this->queue = std::queue<std::shared_ptr<Packet>>();
-    endpoint = udp::endpoint(address, port);
-
-    try {
-      sock.connect(endpoint);
-    } catch (std::exception &e) {
-      std::cerr << "error : " << e.what() << std::endl;
-    }
-
-  }
-
   Receiver::~Receiver(){
     this->stop();
   }
@@ -45,5 +30,7 @@
   }
 
   void Receiver::stop(void) {
-    thread_.join();
+    this->stopped = true;
+    if (thread_.joinable())
+      thread_.join();
   }

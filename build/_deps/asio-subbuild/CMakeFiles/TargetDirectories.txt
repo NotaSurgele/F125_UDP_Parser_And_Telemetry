@@ -1,3 +1,0 @@
-C:/Users/civod/Documents/project/F125_UDP_Parser_And_Telemetry/build/_deps/asio-subbuild/CMakeFiles/asio-populate.dir
-C:/Users/civod/Documents/project/F125_UDP_Parser_And_Telemetry/build/_deps/asio-subbuild/CMakeFiles/edit_cache.dir
-C:/Users/civod/Documents/project/F125_UDP_Parser_And_Telemetry/build/_deps/asio-subbuild/CMakeFiles/rebuild_cache.dir

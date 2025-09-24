@@ -243,15 +243,13 @@ int main(int argc, char** argv) {
 
 
     std::unique_ptr<Receiver> r;
+    unsigned short port = 20777;
     if (argc > 1) {
-        std::string ip = argv[1];
-        unsigned short port = 20777;
-        if (argc > 2) {
-            port = static_cast<unsigned short>(std::stoi(argv[2]));
-        }
-        r = std::make_unique<Receiver>(context, ip, port);
+        port = static_cast<unsigned short>(std::stoi(argv[1]));
+
+        r = std::make_unique<Receiver>(context, port);
     } else {
-        r = std::make_unique<Receiver>(context, 20777);
+        r = std::make_unique<Receiver>(context, port);
     }
     
     F125parser f1parser;

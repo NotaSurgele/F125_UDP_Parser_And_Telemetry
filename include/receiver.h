@@ -34,7 +34,6 @@ class Packet {
 class Receiver {
 public:
     Receiver(asio::io_context &context, unsigned short port);
-    Receiver(asio::io_context &context, const std::string &ip, unsigned short port);
     ~Receiver();
     std::shared_ptr<Packet> poll(void);
 
@@ -66,8 +65,12 @@ public:
                 std::cerr << "error : " << e.what() << std::endl;
 
             }
+            if (this->stopped)
+                break;
 
         }
+        std::cout << "Stopping receiver on port " << this->port << std::endl;
+        return;
 
     };
 
@@ -76,6 +79,8 @@ public:
 private:
 
 
+
+    bool stopped = false;
 
     udp::socket sock;
     udp::endpoint endpoint;
