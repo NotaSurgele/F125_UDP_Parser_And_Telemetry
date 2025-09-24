@@ -48,7 +48,6 @@ public:
                 std::array<unsigned char, 2048> buff = {0};
                 //size_t l = this->sock.receive_from(asio::buffer(buff), endpoint);
                 size_t l = this->sock.receive(asio::buffer(buff));
-                std::cout << "Received packet of size: " << l << " bytes" << std::endl;
 
                 auto newPacket = std::make_shared<Packet>();
 
